@@ -55,3 +55,404 @@ class CuadrilateroApp:
 
 if __name__ == "__main__":
     CuadrilateroApp()
+
+
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from OpenGL.GLUT import *
+
+class TrianguloApp:
+    def __init__(self):
+        self.angulo = 0.0       # Ángulo de rotación
+        self.escala = 1.0       # Escalado uniforme
+        self.paso_escala = 0.1  # Incremento/decremento de escala
+
+        self.vertices = [
+            (-0.5, -0.5),
+            (0.5, -0.5),
+            (0.0, 0.5)
+        ]
+
+        glutInit()
+        glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB)
+        glutInitWindowSize(500, 500)
+        glutInitWindowPosition(100, 100)
+        glutCreateWindow(b"Triangulo - Rotacion y Escalado - PyOpenGL")
+
+        glClearColor(1.0, 1.0, 1.0, 1.0)  # Fondo blanco
+
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glOrtho(-1, 1, -1, 1, -1, 1)
+
+        glutDisplayFunc(self.dibujar)
+        glutSpecialFunc(self.tecla_especial)
+
+        glutMainLoop()
+
+    def dibujar(self):
+        glClear(GL_COLOR_BUFFER_BIT)
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+
+        glScalef(self.escala, self.escala, 1.0)   # Aplicar escalado uniforme
+        glRotatef(self.angulo, 0.0, 0.0, 1.0)     # Aplicar rotación
+
+        glBegin(GL_TRIANGLES)
+        glColor3f(1.0, 0.0, 0.0)
+        glVertex2f(*self.vertices[0])
+
+        glColor3f(0.0, 1.0, 0.0)
+        glVertex2f(*self.vertices[1])
+
+        glColor3f(0.0, 0.0, 1.0)
+        glVertex2f(*self.vertices[2])
+        glEnd()
+
+        glFlush()
+
+    def tecla_especial(self, key, x, y):
+        if key == GLUT_KEY_F1:
+            self.angulo += 5.0  # Rotar antihorario
+        elif key == GLUT_KEY_F2:
+            self.angulo -= 5.0  # Rotar horario
+        elif key == GLUT_KEY_F3:
+            self.escala += self.paso_escala  # Escalar hacia arriba
+        elif key == GLUT_KEY_F4:
+            if self.escala - self.paso_escala > 0.1:
+                self.escala -= self.paso_escala  # Escalar hacia abajo
+
+        glutPostRedisplay()
+
+if __name__ == "__main__":
+    TrianguloApp()
+from OpenGL.GL import *
+from OpenGL.GLUT import *
+from OpenGL.GLU import *
+
+# Variables de rotación
+rot_x = 0
+rot_y = 0
+
+# Diccionario para parámetros de luz
+light_config = {
+    GL_POSITION:  [2.0, 2.0, 2.0, 1.0],
+    GL_AMBIENT:   [0.2, 0.2, 0.2, 1.0],
+    GL_DIFFUSE:   [0.8, 0.8, 0.8, 1.0],
+    GL_SPECULAR:  [1.0, 1.0, 1.0, 1.0]
+}
+
+# Diccionario para parámetros del material
+material_config = {
+    GL_AMBIENT:   [1.0, 0.5, 0.0, 1.0],
+    GL_DIFFUSE:   [0.7, 0.2, 0.5, 1.0],
+    GL_SPECULAR:  [1.0, 1.0, 1.0, 1.0],
+    GL_SHININESS: 50.0
+}
+
+def configurar_luz():
+    glEnable(GL_LIGHTING)
+    glEnable(GL_LIGHT0)
+    for prop, value in light_config.items():
+        glLightfv(GL_LIGHT0, prop, value)
+
+def configurar_material():
+    for prop, value in material_config.items():
+        if prop == GL_SHININESS:
+            glMaterialf(GL_FRONT, prop, value)
+        else:
+            glMaterialfv(GL_FRONT, prop, value)
+
+def init():
+    glClearColor(0.1, 0.1, 0.1, 1.0)  # Fondo gris oscuro
+    glEnable(GL_DEPTH_TEST)
+    glEnable(GL_COLOR_MATERIAL)
+    configurar_luz()
+
+def display():
+    global rot_x, rot_y
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glLoadIdentity()
+    glTranslatef(0.0, 0.0, -5.0)
+    glRotatef(rot_x, 1.0, 0.0, 0.0)
+    glRotatef(rot_y, 0.0, 1.0, 0.0)
+
+    configurar_material()
+
+    # Puedes cambiar por glutSolidTeapot si lo tienes disponible
+    glutSolidTeapot(1.0)     # Dibujar tetera sólida
+    ##glutWireTeapot(1.0) 
+    ##glutWireCone(0.9, 0.9, 25, 25)
+
+    glutSwapBuffers()
+
+def specialKeys(key, x, y):
+    global rot_x, rot_y
+    if key == GLUT_KEY_RIGHT:
+        rot_y += 5
+    elif key == GLUT_KEY_LEFT:
+        rot_y -= 5
+    elif key == GLUT_KEY_UP:
+        rot_x -= 5
+    elif key == GLUT_KEY_DOWN:
+        rot_x += 5
+    glutPostRedisplay()
+
+def reshape(width, height):
+    if height == 0:
+        height = 1
+    aspect = width / height
+    glViewport(0, 0, width, height)
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    gluPerspective(45.0, aspect, 1.0, 100.0)
+    glMatrixMode(GL_MODELVIEW)
+
+def main():
+    glutInit()
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
+    glutInitWindowSize(800, 600)
+    glutInitWindowPosition(100, 100)
+    glutCreateWindow(b"3D con Luz y Material usando dict y map - PyOpenGL")
+    init()
+    glutDisplayFunc(display)
+    glutReshapeFunc(reshape)
+    glutSpecialFunc(specialKeys)
+    glutMainLoop()
+
+if __name__ == "__main__":
+    main()
+
+
+from OpenGL.GLUT import *
+from OpenGL.GLU import *
+
+# Variables globales para rotación
+rot_x = 0
+rot_y = 0
+
+# Color actual del material (puede cambiar con teclado)
+tetera_color = [1.0, 0.5, 0.0, 1.0]  # Color RGBA inicial
+
+# Configuración de luz
+light_config = {
+    GL_POSITION:  [2.0, 2.0, 2.0, 1.0],     # Posición puntual
+    GL_AMBIENT:   [0.2, 0.2, 0.2, 1.0],     # Luz ambiental tenue
+    GL_DIFFUSE:   [0.8, 0.8, 0.8, 1.0],     # Luz difusa blanca
+    GL_SPECULAR:  [1.0, 1.0, 1.0, 1.0]      # Luz especular blanca
+}
+
+# Configuración inicial de material (los colores cambian con el teclado)
+material_config = {
+    GL_SPECULAR:  [1.0, 1.0, 1.0, 1.0],     # Brillo blanco
+    GL_SHININESS: 50.0                     # Nivel de brillo (0–128)
+}
+
+def configurar_luz():
+    """Activa e inicializa los parámetros de la luz."""
+    glEnable(GL_LIGHTING)
+    glEnable(GL_LIGHT0)
+    for prop, value in light_config.items():
+        glLightfv(GL_LIGHT0, prop, value)
+
+def configurar_material():
+    """Aplica el material actual a la tetera."""
+    # Color cambiante (con glMaterialfv)
+    glMaterialfv(GL_FRONT, GL_AMBIENT, tetera_color)
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, tetera_color)
+    # Otros componentes fijos
+    for prop, value in material_config.items():
+        if prop == GL_SHININESS:
+            glMaterialf(GL_FRONT, prop, value)
+        else:
+            glMaterialfv(GL_FRONT, prop, value)
+
+def init():
+    """Inicialización general de OpenGL."""
+    glClearColor(0.1, 0.1, 0.1, 1.0)  # Fondo gris oscuro
+    glEnable(GL_DEPTH_TEST)
+    glEnable(GL_COLOR_MATERIAL)      # Permitir usar glColor o material
+    configurar_luz()
+
+def display():
+    """Función de dibujo principal."""
+    global rot_x, rot_y
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glLoadIdentity()
+    glTranslatef(0.0, 0.0, -5.0)      # Alejar la cámara
+    glRotatef(rot_x, 1.0, 0.0, 0.0)   # Rotación eje X
+    glRotatef(rot_y, 0.0, 1.0, 0.0)   # Rotación eje Y
+
+    configurar_material()
+
+    # Puedes cambiar a glutSolidTeapot(1.0) si tienes la tetera
+    glutSolidTeapot(1.0)
+    # glutWireCone(1.0, 1.5, 25, 25)  # Otro ejemplo
+
+    glutSwapBuffers()
+
+def specialKeys(key, x, y):
+    """Rotar con flechas del teclado."""
+    global rot_x, rot_y
+    if key == GLUT_KEY_RIGHT:
+        rot_y += 5
+    elif key == GLUT_KEY_LEFT:
+        rot_y -= 5
+    elif key == GLUT_KEY_UP:
+        rot_x -= 5
+    elif key == GLUT_KEY_DOWN:
+        rot_x += 5
+    glutPostRedisplay()
+
+def keyboard(key, x, y):
+    """Cambiar color de la tetera con teclado."""
+    global tetera_color
+    key = key.decode("utf-8").lower()
+    if key == 'r':         # Rojo
+        tetera_color = [1.0, 0.0, 0.0, 1.0]
+    elif key == 'g':       # Verde
+        tetera_color = [0.0, 1.0, 0.0, 1.0]
+    elif key == 'b':       # Azul
+        tetera_color = [0.0, 0.0, 1.0, 1.0]
+    elif key == 'm':       # Magenta
+        tetera_color = [1.0, 0.0, 1.0, 1.0]
+    elif key == 'w':       # Blanco
+        tetera_color = [1.0, 1.0, 1.0, 1.0]
+    glutPostRedisplay()
+
+def reshape(width, height):
+    """Ajustar la proyección si la ventana cambia de tamaño."""
+    if height == 0:
+        height = 1
+    aspect = width / height
+    glViewport(0, 0, width, height)
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    gluPerspective(45.0, aspect, 1.0, 100.0)
+    glMatrixMode(GL_MODELVIEW)
+
+def main():
+    """Función principal."""
+    glutInit()
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
+    glutInitWindowSize(800, 600)
+    glutInitWindowPosition(100, 100)
+    glutCreateWindow(b"Tetera 3D - Iluminacion, Material y Color por Teclado")
+    init()
+    glutDisplayFunc(display)
+    glutReshapeFunc(reshape)
+    glutSpecialFunc(specialKeys)
+    glutKeyboardFunc(keyboard)
+    glutMainLoop()
+
+if __name__ == "__main__":
+    main()
+
+# Mostrar triángulo con colores RGB usando PyOpenGL y clases
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from OpenGL.GLUT import *
+
+class TrianguloApp:
+    def __init__(self):
+        glutInit()
+        glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB)
+        glutInitWindowSize(500, 500)
+        glutInitWindowPosition(100, 100)
+        glutCreateWindow(b"Triangulo con colores interpolados - PyOpenGL")
+        glClearColor(1.0, 1.0, 1.0, 1.0)  # Fondo blanco
+
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glOrtho(-1, 1, -1, 1, -1, 1)  # Coordenadas ortogonales
+
+        glutDisplayFunc(self.dibujar)
+        glutMainLoop()
+
+    def dibujar(self):
+        glClear(GL_COLOR_BUFFER_BIT)
+
+        glBegin(GL_TRIANGLES)
+        # Vértice 1 - rojo
+        glColor3f(1.0, 0.0, 0.0)
+        glVertex2f(-0.5, -0.5)
+        
+        # Vértice 2 - verde
+        glColor3f(0.0, 1.0, 0.0)
+        glVertex2f(0.5, -0.5)
+        
+        # Vértice 3 - azul
+        glColor3f(0.0, 0.0, 1.0)
+        glVertex2f(0.0, 0.5)
+        glEnd()
+
+        glFlush()
+
+if __name__ == "__main__":
+    TrianguloApp()
+
+
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from OpenGL.GLUT import *
+
+class TrianguloApp:
+    def __init__(self):
+        self.angulo = 0.0  # Ángulo de rotación
+
+        self.vertices = [
+            (-0.5, -0.5),
+            (0.5, -0.5),
+            (0.0, 0.5)
+        ]
+
+        glutInit()
+        glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB)
+        glutInitWindowSize(500, 500)
+        glutInitWindowPosition(100, 100)
+        glutCreateWindow(b"Triangulo con rotacion - F1/F2 - PyOpenGL")
+
+        glClearColor(1.0, 1.0, 1.0, 1.0)  # Fondo blanco
+
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glOrtho(-1, 1, -1, 1, -1, 1)
+
+        glutDisplayFunc(self.dibujar)
+        glutSpecialFunc(self.tecla_especial)  # Detectar teclas especiales (F1, F2)
+
+        glutMainLoop()
+
+    def dibujar(self):
+        glClear(GL_COLOR_BUFFER_BIT)
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+
+        glRotatef(self.angulo, 0.0, 0.0, 1.0)
+
+        glBegin(GL_TRIANGLES)
+        glColor3f(1.0, 0.0, 0.0)
+        glVertex2f(*self.vertices[0])
+
+        glColor3f(0.0, 1.0, 0.0)
+        glVertex2f(*self.vertices[1])
+
+        glColor3f(0.0, 0.0, 1.0)
+        glVertex2f(*self.vertices[2])
+        glEnd()
+
+        glFlush()
+
+    def tecla_especial(self, key, x, y):
+        if key == GLUT_KEY_F1:
+            self.angulo += 5.0  # F1: rotar izquierda
+        elif key == GLUT_KEY_F2:
+            self.angulo -= 5.0  # F2: rotar derecha
+
+        glutPostRedisplay()
+
+if __name__ == "__main__":
+    TrianguloApp()
+
+
+
