@@ -1,0 +1,521 @@
+import math
+import tkinter as tk
+from tkinter import ttk, messagebox, Canvas
+from abc import ABC, abstractmethod
+
+# Tu código base sin modificaciones
+class Figura(ABC):
+    @abstractmethod
+    def calcular_area(self):
+        pass
+
+class Cuadrado(Figura):
+    def __init__(self, lado):
+        if lado <= 0:
+            raise ValueError("El lado debe ser mayor que cero")
+        self.lado = lado
+    
+    def calcular_area(self):
+        return self.lado ** 2
+
+class Triangulo(Figura):
+    def __init__(self, base, altura):
+        if base <= 0 or altura <= 0:
+            raise ValueError("La base y la altura deben ser mayores que cero")
+        self.base = base
+        self.altura = altura
+    
+    def calcular_area(self):
+        return (self.base * self.altura) / 2
+
+class Circulo(Figura):
+    def __init__(self, radio):
+        if radio <= 0:
+            raise ValueError("El radio debe ser mayor que cero")
+        self.radio = radio
+    
+    def calcular_area(self):
+        return math.pi * self.radio ** 2
+
+class Rectangulo(Figura):
+    def __init__(self, base, altura):
+        if base <= 0 or altura <= 0:
+            raise ValueError("La base y la altura deben ser mayores que cero")
+        self.base = base
+        self.altura = altura
+    
+    def calcular_area(self):
+        return self.base * self.altura
+
+# Interfaz gráfica con Tkinter
+class CalculadoraFiguras:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Calculadora de Figuras Geométricas")
+        self.root.geometry("1000x700")
+        self.root.configure(bg='#2c3e50')
+        self.root.resizable(False, False)
+        
+        # Centrar ventana
+        self.centrar_ventana()
+        
+        self.crear_interfaz()
+    
+    def centrar_ventana(self):
+        self.root.update_idletasks()
+        width = self.root.winfo_width()
+        height = self.root.winfo_height()
+        x = (self.root.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.root.winfo_screenheight() // 2) - (height // 2)
+        self.root.geometry(f'{width}x{height}+{x}+{y}')
+    
+    def crear_interfaz(self):
+        # Título principal
+        titulo = tk.Label(
+            self.root,
+            text="🔺 Calculadora de Figuras Geométricas 🔴",
+            font=('Arial', 24, 'bold'),
+            fg='#ecf0f1',
+            bg='#2c3e50'
+        )
+        titulo.pack(pady=20)
+        
+        # Frame principal con gradiente visual
+        main_frame = tk.Frame(self.root, bg='#34495e', relief='raised', bd=2)
+        main_frame.pack(padx=40, pady=20, fill='both', expand=True)
+        
+        # Crear frame horizontal para dividir en dos columnas
+        content_frame = tk.Frame(main_frame, bg='#34495e')
+        content_frame.pack(fill='both', expand=True, padx=20, pady=20)
+        
+        # Columna izquierda - Controles
+        left_frame = tk.Frame(content_frame, bg='#34495e', width=400)
+        left_frame.pack(side='left', fill='both', expand=True, padx=(0, 10))
+        left_frame.pack_propagate(False)
+        
+        # Columna derecha - Visualización
+        right_frame = tk.Frame(content_frame, bg='#2c3e50', relief='sunken', bd=2, width=400)
+        right_frame.pack(side='right', fill='both', expand=True, padx=(10, 0))
+        right_frame.pack_propagate(False)
+        
+        # Frame para selección de figura
+        selection_frame = tk.Frame(left_frame, bg='#34495e')
+        selection_frame.pack(pady=20)
+        
+        # Label para selección
+        select_label = tk.Label(
+            selection_frame,
+            text="Selecciona una figura:",
+            font=('Arial', 14, 'bold'),
+            fg='#ecf0f1',
+            bg='#34495e'
+        )
+        select_label.pack(pady=10)
+        
+        # Frame para botones de figuras
+        buttons_frame = tk.Frame(selection_frame, bg='#34495e')
+        buttons_frame.pack(pady=15)
+        
+        # Botones de figuras con iconos y colores
+        self.crear_boton_figura(buttons_frame, "🟦 Cuadrado", "#3498db", 0, 0, self.mostrar_cuadrado)
+        self.crear_boton_figura(buttons_frame, "🔺 Triángulo", "#e74c3c", 0, 1, self.mostrar_triangulo)
+        self.crear_boton_figura(buttons_frame, "🔴 Círculo", "#f39c12", 1, 0, self.mostrar_circulo)
+        self.crear_boton_figura(buttons_frame, "🟩 Rectángulo", "#27ae60", 1, 1, self.mostrar_rectangulo)
+        
+        # Frame para inputs (inicialmente oculto)
+        self.input_frame = tk.Frame(left_frame, bg='#34495e')
+        self.input_frame.pack(pady=20, fill='x')
+        
+        # Frame para resultado
+        self.resultado_frame = tk.Frame(left_frame, bg='#34495e')
+        self.resultado_frame.pack(pady=15)
+        
+        self.resultado_label = tk.Label(
+            self.resultado_frame,
+            text="",
+            font=('Arial', 12, 'bold'),
+            fg='#2ecc71',
+            bg='#34495e',
+            wraplength=350
+        )
+        self.resultado_label.pack()
+        
+        # Título para visualización
+        viz_title = tk.Label(
+            right_frame,
+            text="📐 Visualización de la Figura",
+            font=('Arial', 14, 'bold'),
+            fg='#ecf0f1',
+            bg='#2c3e50'
+        )
+        viz_title.pack(pady=10)
+        
+        # Canvas para dibujar figuras
+        self.canvas = Canvas(
+            right_frame,
+            width=350,
+            height=350,
+            bg='white',
+            relief='sunken',
+            bd=2
+        )
+        self.canvas.pack(pady=10)
+        
+        # Inicialmente ocultar el frame de inputs
+        self.limpiar_inputs()
+        self.mostrar_mensaje_inicial()
+    
+    def crear_boton_figura(self, parent, texto, color, row, col, comando):
+        btn = tk.Button(
+            parent,
+            text=texto,
+            font=('Arial', 12, 'bold'),
+            bg=color,
+            fg='white',
+            activebackground=self.darken_color(color),
+            activeforeground='white',
+            relief='raised',
+            bd=3,
+            width=15,
+            height=2,
+            cursor='hand2',
+            command=comando
+        )
+        btn.grid(row=row, column=col, padx=15, pady=10)
+        
+        # Efecto hover
+        def on_enter(e):
+            btn.config(bg=self.darken_color(color))
+        
+        def on_leave(e):
+            btn.config(bg=color)
+        
+        btn.bind("<Enter>", on_enter)
+        btn.bind("<Leave>", on_leave)
+    
+    def darken_color(self, color):
+        # Función para oscurecer colores en hover
+        colors = {
+            "#3498db": "#2980b9",
+            "#e74c3c": "#c0392b", 
+            "#f39c12": "#d68910",
+            "#27ae60": "#229954"
+        }
+        return colors.get(color, color)
+    
+    def limpiar_inputs(self):
+        for widget in self.input_frame.winfo_children():
+            widget.destroy()
+        self.resultado_label.config(text="")
+    
+    def mostrar_mensaje_inicial(self):
+        self.canvas.delete("all")
+        self.canvas.create_text(
+            175, 175,
+            text="Selecciona una figura\npara ver su visualización",
+            font=('Arial', 14),
+            fill='#7f8c8d',
+            justify='center'
+        )
+    
+    def crear_input(self, texto, row):
+        label = tk.Label(
+            self.input_frame,
+            text=texto,
+            font=('Arial', 12, 'bold'),
+            fg='#ecf0f1',
+            bg='#34495e'
+        )
+        label.grid(row=row, column=0, sticky='e', padx=10, pady=8)
+        
+        entry = tk.Entry(
+            self.input_frame,
+            font=('Arial', 12),
+            width=15,
+            relief='solid',
+            bd=1,
+            highlightthickness=2,
+            highlightcolor='#3498db'
+        )
+        entry.grid(row=row, column=1, padx=10, pady=8)
+        return entry
+    
+    def crear_boton_calcular(self, comando, row):
+        btn = tk.Button(
+            self.input_frame,
+            text="✨ Calcular Área",
+            font=('Arial', 12, 'bold'),
+            bg='#9b59b6',
+            fg='white',
+            activebackground='#8e44ad',
+            activeforeground='white',
+            relief='raised',
+            bd=3,
+            cursor='hand2',
+            command=comando
+        )
+        btn.grid(row=row, column=0, columnspan=2, pady=20)
+        
+        # Efecto hover
+        def on_enter(e):
+            btn.config(bg='#8e44ad')
+        
+        def on_leave(e):
+            btn.config(bg='#9b59b6')
+        
+        btn.bind("<Enter>", on_enter)
+        btn.bind("<Leave>", on_leave)
+    
+    def mostrar_cuadrado(self):
+        self.limpiar_inputs()
+        self.lado_entry = self.crear_input("Lado del cuadrado:", 0)
+        self.crear_boton_calcular(self.calcular_cuadrado, 1)
+        self.dibujar_cuadrado_preview()
+    
+    def mostrar_triangulo(self):
+        self.limpiar_inputs()
+        self.base_entry = self.crear_input("Base del triángulo:", 0)
+        self.altura_entry = self.crear_input("Altura del triángulo:", 1)
+        self.crear_boton_calcular(self.calcular_triangulo, 2)
+        self.dibujar_triangulo_preview()
+    
+    def mostrar_circulo(self):
+        self.limpiar_inputs()
+        self.radio_entry = self.crear_input("Radio del círculo:", 0)
+        self.crear_boton_calcular(self.calcular_circulo, 1)
+        self.dibujar_circulo_preview()
+    
+    def mostrar_rectangulo(self):
+        self.limpiar_inputs()
+        self.base_entry = self.crear_input("Base del rectángulo:", 0)
+        self.altura_entry = self.crear_input("Altura del rectángulo:", 1)
+        self.crear_boton_calcular(self.calcular_rectangulo, 2)
+        self.dibujar_rectangulo_preview()
+    
+    def calcular_cuadrado(self):
+        try:
+            lado = float(self.lado_entry.get())
+            c = Cuadrado(lado)
+            area = c.calcular_area()
+            self.mostrar_resultado(f"Área del Cuadrado: {area:.2f} unidades²")
+            self.dibujar_cuadrado(lado)
+        except ValueError as ve:
+            messagebox.showerror("Error", str(ve))
+        except Exception as e:
+            messagebox.showerror("Error", f"Ocurrió un error inesperado: {e}")
+    
+    def calcular_triangulo(self):
+        try:
+            base = float(self.base_entry.get())
+            altura = float(self.altura_entry.get())
+            t = Triangulo(base, altura)
+            area = t.calcular_area()
+            self.mostrar_resultado(f"Área del Triángulo: {area:.2f} unidades²")
+            self.dibujar_triangulo(base, altura)
+        except ValueError as ve:
+            messagebox.showerror("Error", str(ve))
+        except Exception as e:
+            messagebox.showerror("Error", f"Ocurrió un error inesperado: {e}")
+    
+    def calcular_circulo(self):
+        try:
+            radio = float(self.radio_entry.get())
+            ci = Circulo(radio)
+            area = ci.calcular_area()
+            self.mostrar_resultado(f"Área del Círculo: {area:.2f} unidades²")
+            self.dibujar_circulo(radio)
+        except ValueError as ve:
+            messagebox.showerror("Error", str(ve))
+        except Exception as e:
+            messagebox.showerror("Error", f"Ocurrió un error inesperado: {e}")
+    
+    def calcular_rectangulo(self):
+        try:
+            base = float(self.base_entry.get())
+            altura = float(self.altura_entry.get())
+            r = Rectangulo(base, altura)
+            area = r.calcular_area()
+            self.mostrar_resultado(f"Área del Rectángulo: {area:.2f} unidades²")
+            self.dibujar_rectangulo(base, altura)
+        except ValueError as ve:
+            messagebox.showerror("Error", str(ve))
+        except Exception as e:
+            messagebox.showerror("Error", f"Ocurrió un error inesperado: {e}")
+    
+    def mostrar_resultado(self, texto):
+        self.resultado_label.config(text=texto)
+    
+    # Métodos para dibujar figuras de preview (sin medidas)
+    def dibujar_cuadrado_preview(self):
+        self.canvas.delete("all")
+        # Dibujar cuadrado de ejemplo
+        x1, y1 = 125, 125
+        x2, y2 = 225, 225
+        self.canvas.create_rectangle(x1, y1, x2, y2, outline='#3498db', width=3, fill='#ecf0f1')
+        self.canvas.create_text(175, 175, text="Cuadrado", font=('Arial', 12, 'bold'), fill='#3498db')
+        self.canvas.create_text(175, 280, text="Ingresa el lado para ver\nlas medidas", font=('Arial', 10), fill='#7f8c8d', justify='center')
+    
+    def dibujar_triangulo_preview(self):
+        self.canvas.delete("all")
+        # Dibujar triángulo de ejemplo
+        self.canvas.create_polygon(175, 100, 125, 200, 225, 200, outline='#e74c3c', width=3, fill='#ecf0f1')
+        self.canvas.create_text(175, 160, text="Triángulo", font=('Arial', 12, 'bold'), fill='#e74c3c')
+        self.canvas.create_text(175, 280, text="Ingresa base y altura para\nver las medidas", font=('Arial', 10), fill='#7f8c8d', justify='center')
+    
+    def dibujar_circulo_preview(self):
+        self.canvas.delete("all")
+        # Dibujar círculo de ejemplo
+        self.canvas.create_oval(125, 125, 225, 225, outline='#f39c12', width=3, fill='#ecf0f1')
+        self.canvas.create_text(175, 175, text="Círculo", font=('Arial', 12, 'bold'), fill='#f39c12')
+        self.canvas.create_text(175, 280, text="Ingresa el radio para\nver las medidas", font=('Arial', 10), fill='#7f8c8d', justify='center')
+    
+    def dibujar_rectangulo_preview(self):
+        self.canvas.delete("all")
+        # Dibujar rectángulo de ejemplo
+        self.canvas.create_rectangle(100, 140, 250, 210, outline='#27ae60', width=3, fill='#ecf0f1')
+        self.canvas.create_text(175, 175, text="Rectángulo", font=('Arial', 12, 'bold'), fill='#27ae60')
+        self.canvas.create_text(175, 280, text="Ingresa base y altura para\nver las medidas", font=('Arial', 10), fill='#7f8c8d', justify='center')
+    
+    # Métodos para dibujar figuras con medidas
+    def dibujar_cuadrado(self, lado):
+        self.canvas.delete("all")
+        
+        # Escalar para que quepa en el canvas
+        max_size = 150
+        scale = min(max_size / lado, max_size / lado) if lado > 0 else 1
+        lado_scaled = lado * scale
+        
+        # Centrar en el canvas
+        center_x, center_y = 175, 175
+        x1 = center_x - lado_scaled/2
+        y1 = center_y - lado_scaled/2
+        x2 = center_x + lado_scaled/2
+        y2 = center_y + lado_scaled/2
+        
+        # Dibujar cuadrado
+        self.canvas.create_rectangle(x1, y1, x2, y2, outline='#3498db', width=3, fill='#e8f4fd')
+        
+        # Etiquetas de medidas
+        self.canvas.create_text(center_x, y1-15, text=f"Lado: {lado}", font=('Arial', 10, 'bold'), fill='#2c3e50')
+        self.canvas.create_text(x1-25, center_y, text=f"{lado}", font=('Arial', 10, 'bold'), fill='#2c3e50')
+        
+        # Líneas de medida
+        self.canvas.create_line(x1-5, y1, x1-5, y2, width=2, fill='#e74c3c')
+        self.canvas.create_line(x1, y1-5, x2, y1-5, width=2, fill='#e74c3c')
+        
+        # Flechas
+        self.canvas.create_line(x1-8, y1+5, x1-2, y1, width=2, fill='#e74c3c')
+        self.canvas.create_line(x1-8, y2-5, x1-2, y2, width=2, fill='#e74c3c')
+        self.canvas.create_line(x1+5, y1-8, x1, y1-2, width=2, fill='#e74c3c')
+        self.canvas.create_line(x2-5, y1-8, x2, y1-2, width=2, fill='#e74c3c')
+    
+    def dibujar_triangulo(self, base, altura):
+        self.canvas.delete("all")
+        
+        # Escalar para que quepa en el canvas
+        max_size = 150
+        scale_base = max_size / base if base > 0 else 1
+        scale_altura = max_size / altura if altura > 0 else 1
+        scale = min(scale_base, scale_altura)
+        
+        base_scaled = base * scale
+        altura_scaled = altura * scale
+        
+        # Centrar en el canvas
+        center_x, center_y = 175, 200
+        x1 = center_x  # Vértice superior
+        y1 = center_y - altura_scaled
+        x2 = center_x - base_scaled/2  # Vértice inferior izquierdo
+        y2 = center_y
+        x3 = center_x + base_scaled/2  # Vértice inferior derecho
+        y3 = center_y
+        
+        # Dibujar triángulo
+        self.canvas.create_polygon(x1, y1, x2, y2, x3, y3, outline='#e74c3c', width=3, fill='#fdeaea')
+        
+        # Etiquetas de medidas
+        self.canvas.create_text(center_x, y2+15, text=f"Base: {base}", font=('Arial', 10, 'bold'), fill='#2c3e50')
+        self.canvas.create_text(x2-25, center_y - altura_scaled/2, text=f"Altura: {altura}", font=('Arial', 10, 'bold'), fill='#2c3e50')
+        
+        # Líneas de medida
+        self.canvas.create_line(x2, y2+5, x3, y3+5, width=2, fill='#f39c12')
+        self.canvas.create_line(x2-10, y1, x2-10, y2, width=2, fill='#f39c12')
+        
+        # Línea de altura
+        self.canvas.create_line(x1, y1, x1, y2, width=2, fill='#f39c12', dash=(5,5))
+        
+        # Flechas
+        self.canvas.create_line(x2+5, y2+8, x2, y2+2, width=2, fill='#f39c12')
+        self.canvas.create_line(x3-5, y3+8, x3, y3+2, width=2, fill='#f39c12')
+        self.canvas.create_line(x2-13, y1+5, x2-7, y1, width=2, fill='#f39c12')
+        self.canvas.create_line(x2-13, y2-5, x2-7, y2, width=2, fill='#f39c12')
+    
+    def dibujar_circulo(self, radio):
+        self.canvas.delete("all")
+        
+        # Escalar para que quepa en el canvas
+        max_radius = 75
+        scale = min(max_radius / radio, max_radius / radio) if radio > 0 else 1
+        radio_scaled = radio * scale
+        
+        # Centrar en el canvas
+        center_x, center_y = 175, 175
+        x1 = center_x - radio_scaled
+        y1 = center_y - radio_scaled
+        x2 = center_x + radio_scaled
+        y2 = center_y + radio_scaled
+        
+        # Dibujar círculo
+        self.canvas.create_oval(x1, y1, x2, y2, outline='#f39c12', width=3, fill='#fef9e7')
+        
+        # Dibujar radio
+        self.canvas.create_line(center_x, center_y, x2, center_y, width=2, fill='#e74c3c')
+        self.canvas.create_oval(center_x-3, center_y-3, center_x+3, center_y+3, fill='#2c3e50')
+        
+        # Etiqueta de radio
+        self.canvas.create_text(center_x + radio_scaled/2, center_y-15, text=f"Radio: {radio}", font=('Arial', 10, 'bold'), fill='#2c3e50')
+        
+        # Flecha
+        self.canvas.create_line(x2-5, center_y-5, x2, center_y, width=2, fill='#e74c3c')
+        self.canvas.create_line(x2-5, center_y+5, x2, center_y, width=2, fill='#e74c3c')
+    
+    def dibujar_rectangulo(self, base, altura):
+        self.canvas.delete("all")
+        
+        # Escalar para que quepa en el canvas
+        max_size = 150
+        scale_base = max_size / base if base > 0 else 1
+        scale_altura = max_size / altura if altura > 0 else 1
+        scale = min(scale_base, scale_altura)
+        
+        base_scaled = base * scale
+        altura_scaled = altura * scale
+        
+        # Centrar en el canvas
+        center_x, center_y = 175, 175
+        x1 = center_x - base_scaled/2
+        y1 = center_y - altura_scaled/2
+        x2 = center_x + base_scaled/2
+        y2 = center_y + altura_scaled/2
+        
+        # Dibujar rectángulo
+        self.canvas.create_rectangle(x1, y1, x2, y2, outline='#27ae60', width=3, fill='#eafaf1')
+        
+        # Etiquetas de medidas
+        self.canvas.create_text(center_x, y1-15, text=f"Base: {base}", font=('Arial', 10, 'bold'), fill='#2c3e50')
+        self.canvas.create_text(x1-30, center_y, text=f"Altura: {altura}", font=('Arial', 10, 'bold'), fill='#2c3e50')
+        
+        # Líneas de medida
+        self.canvas.create_line(x1-5, y1, x1-5, y2, width=2, fill='#e74c3c')
+        self.canvas.create_line(x1, y1-5, x2, y1-5, width=2, fill='#e74c3c')
+        
+        # Flechas
+        self.canvas.create_line(x1-8, y1+5, x1-2, y1, width=2, fill='#e74c3c')
+        self.canvas.create_line(x1-8, y2-5, x1-2, y2, width=2, fill='#e74c3c')
+        self.canvas.create_line(x1+5, y1-8, x1, y1-2, width=2, fill='#e74c3c')
+        self.canvas.create_line(x2-5, y1-8, x2, y1-2, width=2, fill='#e74c3c')
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = CalculadoraFiguras(root)
+    root.mainloop()
