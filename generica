@@ -1,0 +1,127 @@
+#PROGRAMACION GENERICA
+from typing import TypeVar, Generic
+import math
+
+T = TypeVar("T", int, float)
+
+class OperacionMatematica(Generic[T]):
+    def calcular(self, a: T, b: T) -> T:
+        raise NotImplementedError ("Metodo Calcular() no implementado")
+
+class Suma(OperacionMatematica[T]):
+    def calcular(self, a: T, b: T) -> T:
+        return a + b
+
+class Pitagoras(OperacionMatematica[T]):
+    def calcular(self, a: T, b: T) -> T:
+        return math.sqrt(a**2 + b**2)
+
+class Fcatorial(OperacionMatematica[T]):
+    def calcular(self, a: T, b: T) -> T:
+        if isinstance(a, int) and a >= 0:
+            return math.factorial(a)
+
+def main():
+    operacion = Suma()
+    num1 = 5
+    num2 = 7
+    resultado = operacion.calcular(num1, num2)
+    print(f"La Suma de {num1} + {num2} es: {resultado}")
+
+    operacion = Suma()
+    num3 = 5.5
+    num4 = 7.9
+    resultado2 = operacion.calcular(num3, num4)
+    print(f"La Suma de {num3} + {num4} es: {resultado2}")
+
+    operacion = Pitagoras()
+    lado_a = 5
+    lado_b = 7
+    hipotenusa = operacion.calcular(lado_a, lado_b)
+    print(f"La hipotenusa de un triangulo con lados {lado_a},{lado_b} es: {hipotenusa}")
+
+    lado_c = 5.5
+    lado_d = 7.9
+    hipotenusa2 = operacion.calcular(lado_c, lado_d)
+    print(f"La hipotenusa de un triangulo con lados {lado_c}, {lado_d} es: {hipotenusa2}")
+
+    operacion = Factorial()
+    num5 = -5
+    resultado3 = operacion.calcular(num5, None)
+    print(f"El factorial de {num5} es: {resultado3}")
+
+    num6 = 7
+    resultado4 = operacion.calcular(num6, None)
+    print(f"El factorial de {num6} es: {resultado4}")
+
+if __name__ == "__main__":
+    main()
+
+
+# Programacion Generica calculadora
+from typing import TypeVar, Generic
+import math
+
+T = TypeVar("T", int, float)
+
+class Calculadora(Generic[T]):
+    def calcular(self, a: T, b: T) -> T:
+        raise NotImplementedError ("Metodo Calcular() no implementado")
+
+    def Suma(self, a: T, b: T) -> T:
+        return a + b
+
+    def Resta(self, a: T, b: T) -> T:
+        return a - b
+
+    def Division(self, a: T, b: T) -> T:
+        if b == 0:
+            raise ValueError("No se puede dividir entre cero")
+        return a / b
+
+    def Multiplicacion(self, a: T, b: T) -> T:
+        return a * b
+
+# Menú principal
+def main():
+    while True:
+        print("\n*** CALCULADORA ***")
+        print("1. Suma")
+        print("2. Resta")
+        print("3. Divicion")
+        print("4. Multiplicacion")
+        print("5. Salir")
+
+        opcion = input("Ingrese una opción: ")
+        if opcion == "1":
+            num1 = float(input("Ingrese el primer número: "))
+            num2 = float(input("Ingrese el segundo número: "))
+            operacion = Suma()
+            resultado = operacion.calcular(num1, num2)
+
+        elif opcion == "2":
+            num3 = float(input("Ingrese el primer número: "))
+            num4 = float(input("Ingrese el segundo número: "))
+            operacion = Resta()
+            resultado = operacion.calcular(num3, num4)
+
+        elif opcion == "3":
+            num5 = float(input("Ingrese el primer número: "))
+            num6 = float(input("Ingrese el segundo número: "))
+            operacion = Division()
+            resultado = operacion.calcular(num5, num6, None)
+
+        elif opcion == "4":
+            num7 = float(input("Ingrese el primer número: "))
+            num8 = float(input("Ingrese el segundo número: "))
+            operacion = Multiplicacion()
+            resultado = operacion.calcular(num7, num8)
+
+        if opcion == "5":
+            print("¡Hasta luego!")
+            break
+
+        print(f"El resultado es: {resultado}")
+
+if __name__ == "__main__":
+    main()
