@@ -1,0 +1,25 @@
+#potencia de un numero de forma recursiva
+#programacion generica
+from typing import TypeVar, Generic
+import math
+
+T = TypeVar('T')
+
+class Potencia(Generic[T]):
+    def __init__(self, base: T, exponente: T) -> None:
+        self.base = base
+        self.exponente = exponente
+
+    def calcular_potencia(self) -> T:
+        return self.base ** self.exponente
+
+if __name__ == "__main__":
+        num1 = 5
+        num2 = 2
+        print(f"La potencia de {num1} elevado a {num2} es:")
+        potencia = Potencia(num1, num2)
+        print(potencia.calcular_potencia())
+recurcive = Potencia(num1, num2)
+print(recurcive.calcular_potencia())
+
+
