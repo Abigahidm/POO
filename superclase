@@ -1,0 +1,448 @@
+# ejercicios 
+#Sistema de figuras geométricas
+#Aplicando: Encapsulamiento, Herencia, Polimorfismo
+#clase base(superclase)
+import math
+
+# Clase base
+class Figura:
+    def __init__(self, nombre):
+        #encapsulamiento
+        self.__nombre = nombre
+    #emcapsulamiento con getter
+    def get_nombre(self):
+        return self.__nombre
+    #polimorfismo
+    def calcular_area(self):
+        pass
+    def calcular_perimetro(self):
+        pass
+    def mostrar_info(self):
+        print(f"\nFigura: {self.__nombre}")
+        print(f"Área: {self.calcular_area():.2f}")
+        print(f"Perímetro: {self.calcular_perimetro():.2f}")
+
+# Subclase Circulo
+class Circulo(Figura):
+    def __init__(self, radio):
+        super().__init__("Círculo")
+        #encapsulamiento
+        self.__radio = radio
+    def get_radio(self):
+        return self.__radio
+    #polimorfismo
+    def calcular_area(self):
+        return math.pi * self.__radio ** 2
+
+    def calcular_perimetro(self):
+        return 2 * math.pi * self.__radio
+
+# Subclase Rectangulo
+# Herencia: hereda de Figura
+class Rectangulo(Figura):
+    def __init__(self, base, altura):
+        super().__init__("Rectángulo")
+        #encapsulamiento
+        self.__base = base
+        self.__altura = altura
+    #encapsulamiento getter
+    def get_base(self):
+        return self.__base
+    def get_altura(self):
+        return self.__altura
+    #polimorfismo
+    def calcular_area(self):
+        return self.__base * self.__altura
+    def calcular_perimetro(self):
+        return 2 * (self.__base + self.__altura)
+
+# Menú principal
+def main():
+    lista_figuras = []
+    while True:
+        print("\n*** SISTEMA DE FIGURAS GEOMÉTRICAS ***")
+        print("1. Registrar Círculo")
+        print("2. Registrar Rectángulo")
+        print("3. Mostrar todas las figuras")
+        print("4. Salir")
+
+        opcion = input("Ingrese una opción: ")
+        if opcion == "1":
+            radio = float(input("Ingrese radio del círculo: "))
+            c = Circulo(radio)
+            lista_figuras.append(c)
+            print("Círculo registrado.")
+
+        elif opcion == "2":
+            base = float(input("Ingrese base del rectángulo: "))
+            altura = float(input("Ingrese altura del rectángulo: "))
+            r = Rectangulo(base, altura)
+            lista_figuras.append(r)
+            print("Rectángulo registrado.")
+
+        elif opcion == "3":
+            if not lista_figuras:
+                print("No hay figuras registradas.")
+            else:
+                for f in lista_figuras:
+                    f.mostrar_info()
+
+        elif opcion == "4":
+            print(" Saliendo del sistema...")
+            break
+
+        else:
+            print("Opción no válida. Intente otra vez")
+
+if __name__ == "__main__":
+    main()
+
+
+
+#siatema de vehiculos
+#aplicacion POO: encapsilamiento, herencia, polimorfismo
+import math
+
+#clase base(superclase)
+class Vehiculo:
+    def __init__(self, marca, modelo, annio):
+      #encapsulamiento
+      self.__marca = marca
+      self.__modelo = modelo
+      self.__annio = annio
+    #encapsulamiento getter
+    def get_marca(self):
+      return self.__marca
+    def get_modelo(self):
+      return self.__modelo
+    def get_annio(self):
+      return self.__annio
+    #polimorfismo
+    def clacular_impuesto(self):
+      pass
+    def mostrar_info(self):
+      print(f"Vehiculo: {self.__marca} {self.__modelo} {self.__annio}")
+      print(f"Impuesto anual: {self.calcular_impuesto():.2f}")
+#sub clase: Auto
+#herencia: hereda de Vehiculo
+class Auto(Vehiculo):
+    def __init__(self, marca, modelo, annio, impuesto_base):
+      super().__init__(marca, modelo, annio)
+      #encapsulamiento
+      self.__impuesto_base = impuesto_base
+    #encapsulamiento getter
+    def get_impuesto_base(self):
+      return self.__impuesto_base
+    #polimorfismo
+    def calcular_impuesto(self):
+        if self.get_annio() < 2010:
+            recargo = 50
+        else:
+            recargo = 100
+        return self.__impuesto_base + recargo
+
+#subclase; Moto
+#herencia; hereda de Vehiculo
+class Moto(Vehiculo):
+    def __init__(self, marca, modelo, annio, impuesto_base):
+      super().__init__(marca, modelo, annio)
+      #encapsulamiento
+      self.__impuesto_base = impuesto_base
+    #encapsulamiento getter
+    def get_impuesto_base(self):
+        return self.__impuesto_base
+
+    #polimorfismo
+    def calcular_impuesto(self):
+        return self.__impuesto_base
+
+#menu principal
+def main():
+    lista_vehiculos = []
+    while True:
+        print("\n*** SISTEMA DE VEHICULOS ***")
+        print("1. Registrar Auto")
+        print("2. Registrar Moto")
+        print("3. Mostrar todos los vehiculos")
+        print("4. Salir")
+
+        opcion = input("Ingrese una opción: ")
+        if opcion == "1":
+            marca = input("Marca: ")
+            modelo = input("Modelo: ")
+            annio = int(input("Año: "))
+            imp_base = float(input("Impuesto base: "))
+            a = Auto(marca, modelo, annio, imp_base)
+            lista_vehiculos.append(a)
+            print("Auto registrado.")
+
+        elif opcion == "2":
+            marca = input("Marca: ")
+            modelo = input("Modelo: ")
+            annio = int(input("Año: "))
+            imp_base = float(input("Impuesto base: "))
+            m = Moto(marca, modelo, annio, imp_base)
+            lista_vehiculos.append(m)
+            print("Moto registrada.")
+
+        elif opcion == "3":
+            if len(lista_vehiculos) == 0:
+                print("No hay vehiculos registrados.")
+            else:
+                for v in lista_vehiculos:
+                    v.mostrar_info()
+
+        elif opcion == "4":
+            print("Saliendo del sistema...")
+            break
+
+        else:
+            print("Opción no válida. Intente otra vez.")
+
+if __name__ == "__main__":
+    main()
+
+# Sistema de animales
+# Aplicación POO: encapsulamiento, herencia, polimorfismo
+
+# Clase base (superclase)
+class Animal:
+    def __init__(self, nombre, edad, especie):
+        # Encapsulamiento
+        self.__nombre = nombre
+        self.__edad = edad
+        self.__especie = especie
+
+    # Getters
+    def get_nombre(self):
+        return self.__nombre
+
+    def get_edad(self):
+        return self.__edad
+
+    def get_especie(self):
+        return self.__especie
+
+    # Método polimórfico
+    def hacer_sonido(self):
+        return "Sonido desconocido"
+
+    def mostrar_info(self):
+        print(f"\nAnimal: {self.__nombre}")
+        print(f"Edad: {self.__edad}")
+        print(f"Especie: {self.__especie}")
+        print(f"Sonido: {self.hacer_sonido()}")
+
+# Subclase Felino
+class Felino(Animal):
+    def __init__(self, nombre, edad, especie, color, pelaje):
+        super().__init__(nombre, edad, especie)
+        self.__color = color
+        self.__pelaje = pelaje
+
+    # Getters
+    def get_color(self):
+        return self.__color
+
+    def get_pelaje(self):
+        return self.__pelaje
+
+    # Polimorfismo
+    def hacer_sonido(self):
+        return "Miau o Rugido"
+
+    def mostrar_info(self):
+        super().mostrar_info()
+        print(f"Color: {self.__color}")
+        print(f"Pelaje: {self.__pelaje}")
+
+# Subclase Ave
+class Ave(Animal):
+    def __init__(self, nombre, edad, especie, tipo_pico):
+        super().__init__(nombre, edad, especie)
+        self.__tipo_pico = tipo_pico
+
+    # Getter
+    def get_tipo_pico(self):
+        return self.__tipo_pico
+
+    # Polimorfismo
+    def hacer_sonido(self):
+        return "Pío o Canto"
+
+    def mostrar_info(self):
+        super().mostrar_info()
+        print(f"Tipo de pico: {self.__tipo_pico}")
+
+# Menú principal
+def main():
+    lista_animales = []
+
+    while True:
+        print("\n*** SISTEMA DE ANIMALES ***")
+        print("1. Registrar Felino")
+        print("2. Registrar Ave")
+        print("3. Mostrar todos los animales")
+        print("4. Salir")
+
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == "1":
+            nombre = input("Nombre: ")
+            edad = int(input("Edad: "))
+            especie = input("Especie (ej. León, Gato): ")
+            color = input("Color: ")
+            pelaje = input("Tipo de pelaje (Corto, Largo, etc.): ")
+            felino = Felino(nombre, edad, especie, color, pelaje)
+            lista_animales.append(felino)
+            print("Felino registrado correctamente.")
+
+        elif opcion == "2":
+            nombre = input("Nombre: ")
+            edad = int(input("Edad: "))
+            especie = input("Especie (ej. Loro, Águila): ")
+            tipo_pico = input("Tipo de pico (Fuerte, Delgado, etc.): ")
+            ave = Ave(nombre, edad, especie, tipo_pico)
+            lista_animales.append(ave)
+            print("Ave registrada correctamente.")
+
+        elif opcion == "3":
+            if not lista_animales:
+                print("No hay animales registrados.")
+            else:
+                for animal in lista_animales:
+                    animal.mostrar_info()
+
+        elif opcion == "4":
+            print("Saliendo del sistema...")
+            break
+
+        else:
+            print("Opción inválida. Intente nuevamente.")
+
+if __name__ == "__main__":
+    main()
+
+
+# Clase base (superclase)
+class Empleado:
+    def __init__(self, nombre, dni, salario_base):
+        # Encapsulamiento
+        self.__nombre = nombre
+        self.__dni = dni
+        self.__salario_base = salario_base
+
+    def get_nombre(self):
+        return self.__nombre
+
+    def get_dni(self):
+        return self.__dni
+
+    def get_salario_base(self):
+        return self.__salario_base
+
+    # Método polimórfico: será sobreescrito
+    def calcular_salario_final(self):
+        return self.__salario_base
+
+    def mostrar_info(self):
+        print(f"\nNombre: {self.get_nombre()}")
+        print(f"DNI: {self.get_dni()}")
+        print(f"Salario base: S/.{self.get_salario_base():.2f}")
+        print(f"Salario final: S/.{self.calcular_salario_final():.2f}")
+
+
+# Subclase Administrativo (con impuesto del 10%)
+class Administrativo(Empleado):
+    def calcular_salario_final(self):
+        salario = self.get_salario_base()
+        impuesto = salario * 0.10
+        return salario - impuesto
+
+    def mostrar_info(self):
+        salario_bruto = self.get_salario_base()
+        salario_neto = self.calcular_salario_final()
+        impuesto = salario_bruto * 0.10
+        print(f"\nNombre: {self.get_nombre()}")
+        print(f"DNI: {self.get_dni()}")
+        print(f"Salario base: S/.{salario_bruto:.2f}")
+        print(f"Impuesto (10%): S/.{impuesto:.2f}")
+        print(f"Salario final (neto): S/.{salario_neto:.2f}")
+
+
+# Subclase Operario (sin impuesto)
+class Operario(Empleado):
+    def __init__(self, nombre, dni, salario_base, bono_produccion):
+        super().__init__(nombre, dni, salario_base)
+        self.__bono_produccion = bono_produccion
+
+    def get_bono_produccion(self):
+        return self.__bono_produccion
+
+    def calcular_salario_final(self):
+        return self.get_salario_base() + self.get_bono_produccion()
+
+    def mostrar_info(self):
+        salario_base = self.get_salario_base()
+        bono = self.get_bono_produccion()
+        salario_total = self.calcular_salario_final()
+        print(f"\nNombre: {self.get_nombre()}")
+        print(f"DNI: {self.get_dni()}")
+        print(f"Salario base: S/.{salario_base:.2f}")
+        print(f"Bono de producción: S/.{bono:.2f}")
+        print(f"Salario final: S/.{salario_total:.2f}")
+
+
+# ============================
+# Menú interactivo en consola
+# ============================
+def main():
+    empleados = []
+
+    while True:
+        print("\n===== SISTEMA DE EMPLEADOS =====")
+        print("1. Registrar Administrativo")
+        print("2. Registrar Operario")
+        print("3. Mostrar todos los empleados")
+        print("4. Salir")
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == "1":
+            print("\n--- Registro de Administrativo ---")
+            nombre = input("Nombre: ")
+            dni = input("DNI: ")
+            salario_base = float(input("Salario base: "))
+            admin = Administrativo(nombre, dni, salario_base)
+            empleados.append(admin)
+            print("✔ Administrativo registrado correctamente.")
+
+        elif opcion == "2":
+            print("\n--- Registro de Operario ---")
+            nombre = input("Nombre: ")
+            dni = input("DNI: ")
+            salario_base = float(input("Salario base: "))
+            bono = float(input("Bono de producción: "))
+            operario = Operario(nombre, dni, salario_base, bono)
+            empleados.append(operario)
+            print("✔ Operario registrado correctamente.")
+
+        elif opcion == "3":
+            print("\n--- Lista de Empleados ---")
+            if not empleados:
+                print("❌ No hay empleados registrados.")
+            else:
+                for i, emp in enumerate(empleados, start=1):
+                    print(f"\nEmpleado #{i}")
+                    emp.mostrar_info()
+
+        elif opcion == "4":
+            print("👋 Saliendo del sistema... ¡Hasta pronto!")
+            break
+
+        else:
+            print("⚠ Opción inválida. Intente nuevamente.")
+
+# Ejecutar programa
+if __name__ == "__main__":
+    main()
+
